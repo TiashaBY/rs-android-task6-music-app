@@ -9,5 +9,5 @@ data class AudioItem (
         val artist : String = "",
         val bitmapUri : String = "",
         val trackUri : String = "",
-        val duration : Long = 0
+        val duration : Long = 0L
 )

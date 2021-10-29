@@ -69,7 +69,7 @@ class AudioItemViewModel @Inject constructor(
                             trackUri = it.description.mediaUri.toString(),
                             bitmapUri = it.description.iconUri.toString(),
                             duration = it.description.extras?.getLong(MediaMetadataCompat.METADATA_KEY_DURATION)
-                                ?: 0
+                                ?: 0L
                         )
                     }
                     audioList.value = items

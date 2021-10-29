@@ -98,10 +98,12 @@ class PlayerFragment : Fragment() {
                 duration = it.getLong(MediaMetadataCompat.METADATA_KEY_DURATION)
             )
             curPlayingSong = itSong
-            updateImage(curPlayingSong)
-            updateTitle(curPlayingSong)
-            binding.progress.seekBar.max = itSong.duration.toInt()
-            binding.progress.duration.text = itSong.duration.toTimeFormat()
+            if (itSong.duration > 0) {
+                updateImage(curPlayingSong)
+                updateTitle(curPlayingSong)
+                binding.progress.seekBar.max = itSong.duration.toInt()
+                binding.progress.duration.text = itSong.duration.toTimeFormat()
+            }
         }
 
         playerViewModel.playbackStateCompat.observe(viewLifecycleOwner) {
