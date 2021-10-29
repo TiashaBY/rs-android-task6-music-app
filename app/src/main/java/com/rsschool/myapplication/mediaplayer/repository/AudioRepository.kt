@@ -4,6 +4,7 @@ import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import androidx.core.net.toUri
+import androidx.core.os.bundleOf
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.util.MimeTypes
 import com.rsschool.myapplication.mediaplayer.model.AudioItem
@@ -49,6 +50,7 @@ class AudioRepository @Inject constructor(private val dataSource: AudioDataSourc
             .setSubtitle(audio.artist)
             .setMediaId(audio.id)
             .setIconUri(audio.bitmapUri.toUri())
+            .setExtras(bundleOf(MediaMetadataCompat.METADATA_KEY_DURATION to audio.duration))
             .build()
         MediaBrowserCompat.MediaItem(desc, MediaBrowserCompat.MediaItem.FLAG_PLAYABLE)
     }.toMutableList()

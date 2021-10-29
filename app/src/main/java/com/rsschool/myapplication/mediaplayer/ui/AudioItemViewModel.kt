@@ -2,16 +2,23 @@ package com.rsschool.myapplication.mediaplayer.ui
 
 import android.net.Uri
 import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.MediaMetadataCompat.METADATA_KEY_MEDIA_ID
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.rsschool.myapplication.mediaplayer.ext.Constants.MEDIA_ROOT_ID
+import com.rsschool.myapplication.mediaplayer.ext.Constants.UPDATE_PLAYER_POSITION_INTERVAL
+import com.rsschool.myapplication.mediaplayer.ext.currentPlaybackPosition
 import com.rsschool.myapplication.mediaplayer.ext.isPlayEnabled
 import com.rsschool.myapplication.mediaplayer.ext.isPlaying
 import com.rsschool.myapplication.mediaplayer.ext.isPrepared
 import com.rsschool.myapplication.mediaplayer.model.AudioItem
 import com.rsschool.myapplication.mediaplayer.repository.AudioRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,6 +32,25 @@ class AudioItemViewModel @Inject constructor(
     val networkError = mediaController.networkError
     val playbackStateCompat = mediaController.playbackStateCompat
     val curPlayingSong = mediaController.curPlayingSong
+
+    private val _currentPosition = MutableLiveData<Long>()
+    val currentPosition: LiveData<Long> = _currentPosition
+
+    init {
+        updateCurrentPlayerPosition()
+    }
+
+    private fun updateCurrentPlayerPosition() {
+        viewModelScope.launch {
+            while (true) {
+                val pos = playbackStateCompat.value?.currentPlaybackPosition ?: 0
+                if (currentPosition.value != pos) {
+                    _currentPosition.postValue(pos)
+                }
+                delay(UPDATE_PLAYER_POSITION_INTERVAL)
+            }
+        }
+    }
 
     init {
         mediaController.subscribe(
@@ -41,12 +67,15 @@ class AudioItemViewModel @Inject constructor(
                             title = it.description.title.toString(),
                             artist = it.description.subtitle.toString(),
                             trackUri = it.description.mediaUri.toString(),
-                            bitmapUri = it.description.iconUri.toString()
+                            bitmapUri = it.description.iconUri.toString(),
+                            duration = it.description.extras?.getLong(MediaMetadataCompat.METADATA_KEY_DURATION)
+                                ?: 0
                         )
                     }
                     audioList.value = items
                 }
             })
+        updateCurrentPlayerPosition()
     }
 
     fun skipToNextSong() {

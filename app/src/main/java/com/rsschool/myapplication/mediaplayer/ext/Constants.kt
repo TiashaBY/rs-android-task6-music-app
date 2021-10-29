@@ -7,4 +7,5 @@ object Constants {
     const val SERVICE_TAG = "MUSIC_SERVICE"
     const val MEDIA_ROOT_ID = "ROOT_ID"
     const val NETWORK_ERROR = "NETWORK_ERROR"
+    const val UPDATE_PLAYER_POSITION_INTERVAL = 500L
 }
