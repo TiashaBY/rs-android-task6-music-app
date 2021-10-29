@@ -87,12 +87,12 @@ class MediaController(context: Context) {
      */
     private inner class MediaControllerCallback : MediaControllerCompat.Callback() {
 
-        override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
-            _playbackStateCompat.postValue(state!!)
+        override fun onPlaybackStateChanged(state: PlaybackStateCompat) {
+            _playbackStateCompat.postValue(state)
         }
 
-        override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
-            _curPlayingSong.postValue(metadata!!)
+        override fun onMetadataChanged(metadata: MediaMetadataCompat) {
+            _curPlayingSong.postValue(metadata)
         }
 
         override fun onSessionEvent(event: String?, extras: Bundle?) {

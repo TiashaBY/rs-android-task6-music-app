@@ -15,7 +15,6 @@ import com.rsschool.myapplication.mediaplayer.databinding.FragmentPlayerBinding
 import com.rsschool.myapplication.mediaplayer.ext.isPlaying
 import com.rsschool.myapplication.mediaplayer.model.AudioItem
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.*
 
 @AndroidEntryPoint
 class PlayerFragment : Fragment() {
@@ -94,7 +93,7 @@ class PlayerFragment : Fragment() {
             if (!it) {
                 Snackbar.make(
                     binding.imageCard,
-                    "An unknown error occurred",
+                    R.string.common_error,
                     Snackbar.LENGTH_LONG
                 ).show()
             }
@@ -104,7 +103,7 @@ class PlayerFragment : Fragment() {
             if (!it) {
                 Snackbar.make(
                     binding.imageCard,
-                    "An unknown network occurred",
+                    R.string.network_error,
                     Snackbar.LENGTH_LONG
                 ).show()
 

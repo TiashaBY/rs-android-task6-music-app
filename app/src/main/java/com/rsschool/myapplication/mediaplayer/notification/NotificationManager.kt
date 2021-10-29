@@ -1,10 +1,12 @@
 package com.rsschool.myapplication.mediaplayer.notification
 
 import android.app.Notification
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import com.bumptech.glide.Glide
@@ -12,6 +14,7 @@ import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.PlayerNotificationManager
+import com.rsschool.myapplication.mediaplayer.R
 import com.rsschool.myapplication.mediaplayer.ext.Constants.NOTIFICATION_CHANNEL_ID
 import com.rsschool.myapplication.mediaplayer.ext.Constants.NOTIFICATION_ID
 import com.rsschool.myapplication.mediaplayer.service.AudioPlayerMediaService
@@ -26,6 +29,12 @@ class NotificationManager(
 
     init {
         val mediaController = MediaControllerCompat(context, sessionToken)
+
+        notificationManager.setChannelNameResourceId(R.string.notification_channel_name)
+            .setChannelDescriptionResourceId(R.string.notification_channel_description)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notificationManager.setChannelImportance(NotificationManager.IMPORTANCE_DEFAULT)
+        }
 
         notificationManager.setMediaDescriptionAdapter(
             object : PlayerNotificationManager.MediaDescriptionAdapter {

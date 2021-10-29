@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Audio Player</string>
+    <string name="notification_channel_name">music app</string>
+    <string name="notification_channel_description">Play music</string>
+    <string name="playlist_filename">playlist.json</string>
+    <string name="common_error">Error on player connection: An unknown error occurred</string>
+    <string name="network_error">Error on player connection: A network error occurred</string>
 </resources>

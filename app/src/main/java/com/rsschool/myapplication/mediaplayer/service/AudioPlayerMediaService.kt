@@ -17,6 +17,7 @@ import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
+import com.rsschool.myapplication.mediaplayer.R
 import com.rsschool.myapplication.mediaplayer.ext.Constants.MEDIA_ROOT_ID
 import com.rsschool.myapplication.mediaplayer.ext.Constants.NETWORK_ERROR
 import com.rsschool.myapplication.mediaplayer.ext.Constants.SERVICE_TAG
@@ -182,7 +183,7 @@ class AudioPlayerMediaService : MediaBrowserServiceCompat() {
             super.onPlayerError(error)
             Toast.makeText(
                 applicationContext,
-                "Music App: an unknown error occurred",
+                getString(R.string.common_error),
                 Toast.LENGTH_LONG
             ).show()
         }
