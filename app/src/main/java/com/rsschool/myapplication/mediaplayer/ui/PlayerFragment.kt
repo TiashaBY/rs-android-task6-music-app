@@ -1,7 +1,6 @@
 package com.rsschool.myapplication.mediaplayer.ui
 
 import android.os.Bundle
-import android.support.v4.media.session.PlaybackStateCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +12,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.google.android.material.snackbar.Snackbar
 import com.rsschool.myapplication.mediaplayer.R
 import com.rsschool.myapplication.mediaplayer.databinding.FragmentPlayerBinding
-import com.rsschool.myapplication.mediaplayer.ext.toAudioItem
+import com.rsschool.myapplication.mediaplayer.ext.isPlaying
 import com.rsschool.myapplication.mediaplayer.model.AudioItem
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
@@ -25,9 +24,6 @@ class PlayerFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val playerViewModel: AudioItemViewModel by viewModels()
-
-    private var playbackState: PlaybackStateCompat? = null
-
     private var curPlayingSong: AudioItem? = null
 
     override fun onCreateView(
@@ -43,22 +39,22 @@ class PlayerFragment : Fragment() {
 
         subscribeToObservers()
 
-        binding.playPauseButton.setOnClickListener {
+        binding.buttons.playPauseButton.setOnClickListener {
             curPlayingSong?.let {
                 playerViewModel.playOrToggleSong(it, true)
             }
         }
 
-        binding.skipPrevious.setOnClickListener {
+        binding.buttons.skipPrevious.setOnClickListener {
             playerViewModel.skipToPreviousSong()
         }
-        binding.skipNext.setOnClickListener {
+        binding.buttons.skipNext.setOnClickListener {
             playerViewModel.skipToNextSong()
         }
-        binding.fastForward.setOnClickListener {
+        binding.buttons.fastForward.setOnClickListener {
             playerViewModel.fastForward()
         }
-        binding.fastRewind.setOnClickListener {
+        binding.buttons.fastRewind.setOnClickListener {
             playerViewModel.rewind()
         }
     }
@@ -74,16 +70,21 @@ class PlayerFragment : Fragment() {
 
         playerViewModel.curPlayingSong.observe(viewLifecycleOwner) {
             if (it == null) return@observe
-            val itSong = it.toAudioItem()
+            val itSong = AudioItem(
+                id = it.description.mediaId ?: "",
+                title = it.description.title.toString(),
+                artist = it.description.subtitle.toString(),
+                trackUri = it.description.mediaUri.toString(),
+                bitmapUri = it.description.iconUri.toString()
+            )
             curPlayingSong = itSong
             updateImage(curPlayingSong)
             updateTitle(curPlayingSong)
         }
 
         playerViewModel.playbackStateCompat.observe(viewLifecycleOwner) {
-            playbackState = it
-            binding.playPauseButton.setImageResource(
-                if (playbackState?.state == PlaybackStateCompat.STATE_PLAYING) //todo
+            binding.buttons.playPauseButton.setImageResource(
+                if (it?.isPlaying == true)
                     R.drawable.ic_baseline_pause_24
                 else R.drawable.ic_baseline_play_arrow_24
             )

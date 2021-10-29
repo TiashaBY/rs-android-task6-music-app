@@ -2,7 +2,8 @@ package com.rsschool.myapplication.mediaplayer.di
 
 import android.app.Application
 import android.content.Context
-import com.google.android.exoplayer2.*
+import com.google.android.exoplayer2.C
+import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.audio.AudioAttributes
 import com.rsschool.myapplication.mediaplayer.repository.AudioDataSourceImpl
 import com.rsschool.myapplication.mediaplayer.repository.AudioRepository
@@ -24,7 +25,8 @@ class AudioAppModule {
 
     @Provides
     @Singleton
-    fun provideExoPlayer(context: Application
+    fun provideExoPlayer(
+        context: Application
     ): SimpleExoPlayer {
         val attr = AudioAttributes.Builder()
             .setContentType(C.CONTENT_TYPE_MUSIC)

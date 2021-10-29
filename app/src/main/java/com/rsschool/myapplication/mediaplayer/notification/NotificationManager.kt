@@ -3,34 +3,33 @@ package com.rsschool.myapplication.mediaplayer.notification
 import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
-import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.PlayerNotificationManager
+import com.rsschool.myapplication.mediaplayer.ext.Constants.NOTIFICATION_CHANNEL_ID
+import com.rsschool.myapplication.mediaplayer.ext.Constants.NOTIFICATION_ID
 import com.rsschool.myapplication.mediaplayer.service.AudioPlayerMediaService
-import com.rsschool.myapplication.mediaplayer.service.Constants.NOTIFICATION_CHANNEL_ID
-import com.rsschool.myapplication.mediaplayer.service.Constants.NOTIFICATION_ID
 
 class NotificationManager(
     private val context: Context,
     sessionToken: MediaSessionCompat.Token,
     musicService: AudioPlayerMediaService
 ) {
-    private val notificationManager = PlayerNotificationManager.Builder(context, NOTIFICATION_ID, NOTIFICATION_CHANNEL_ID)
+    private val notificationManager =
+        PlayerNotificationManager.Builder(context, NOTIFICATION_ID, NOTIFICATION_CHANNEL_ID)
 
     init {
         val mediaController = MediaControllerCompat(context, sessionToken)
 
         notificationManager.setMediaDescriptionAdapter(
-            object : PlayerNotificationManager.MediaDescriptionAdapter{
-                private var icon :Pair<String, Bitmap>? = null
+            object : PlayerNotificationManager.MediaDescriptionAdapter {
+                private var icon: Pair<String, Bitmap>? = null
 
                 override fun getCurrentContentTitle(player: Player): CharSequence {
                     return mediaController.metadata.description.title.toString()
@@ -49,7 +48,7 @@ class NotificationManager(
                     callback: PlayerNotificationManager.BitmapCallback
                 ): Bitmap? {
 
-                    if (icon?.first == mediaController.metadata.description.iconUri.toString()){
+                    if (icon?.first == mediaController.metadata.description.iconUri.toString()) {
                         return icon?.second
                     }
                     Glide.with(context).asBitmap()
@@ -60,7 +59,8 @@ class NotificationManager(
                                 transition: Transition<in Bitmap>?
                             ) {
                                 callback.onBitmap(resource)
-                                icon = mediaController.metadata.description.iconUri.toString() to resource
+                                icon =
+                                    mediaController.metadata.description.iconUri.toString() to resource
                             }
 
                             override fun onLoadCleared(placeholder: Drawable?) = Unit
@@ -69,11 +69,16 @@ class NotificationManager(
                 }
             })
 
-        notificationManager.setNotificationListener(object : PlayerNotificationManager.NotificationListener {
+        notificationManager.setNotificationListener(object :
+            PlayerNotificationManager.NotificationListener {
 
-            override fun onNotificationPosted(notificationId: Int, notification: Notification, ongoing: Boolean) {
+            override fun onNotificationPosted(
+                notificationId: Int,
+                notification: Notification,
+                ongoing: Boolean
+            ) {
                 super.onNotificationPosted(notificationId, notification, ongoing)
-                if (ongoing) // allow notification to be dismissed if player is stopped
+                if (ongoing)
                     musicService.apply {
                         startForeground(notificationId, notification)
                         isForegroundService = true
@@ -95,6 +100,7 @@ class NotificationManager(
             }
         })
     }
+
     fun showNotification(player: Player) {
         notificationManager.build().setPlayer(player)
     }

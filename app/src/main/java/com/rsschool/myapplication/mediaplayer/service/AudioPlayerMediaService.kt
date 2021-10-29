@@ -9,26 +9,28 @@ import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import android.widget.Toast
 import androidx.media.MediaBrowserServiceCompat
 import com.google.android.exoplayer2.ControlDispatcher
+import com.google.android.exoplayer2.PlaybackException
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
-import com.rsschool.myapplication.mediaplayer.model.AudioItem
+import com.rsschool.myapplication.mediaplayer.ext.Constants.MEDIA_ROOT_ID
+import com.rsschool.myapplication.mediaplayer.ext.Constants.NETWORK_ERROR
+import com.rsschool.myapplication.mediaplayer.ext.Constants.SERVICE_TAG
 import com.rsschool.myapplication.mediaplayer.notification.NotificationManager
 import com.rsschool.myapplication.mediaplayer.repository.AudioRepository
-import com.rsschool.myapplication.mediaplayer.service.Constants.MEDIA_ROOT_ID
-import com.rsschool.myapplication.mediaplayer.service.Constants.NETWORK_ERROR
-import com.rsschool.myapplication.mediaplayer.service.Constants.SERVICE_TAG
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class AudioPlayerMediaService() : MediaBrowserServiceCompat() {
+class AudioPlayerMediaService : MediaBrowserServiceCompat() {
 
     @Inject
     lateinit var repo: AudioRepository
@@ -37,6 +39,8 @@ class AudioPlayerMediaService() : MediaBrowserServiceCompat() {
     lateinit var exoPlayer: SimpleExoPlayer
 
     var isForegroundService = false
+    private var isPlayerInitialized = false
+
     private val serviceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.Main + serviceJob)
 
@@ -45,11 +49,13 @@ class AudioPlayerMediaService() : MediaBrowserServiceCompat() {
     private lateinit var musicNotificationManager: NotificationManager
 
     private var currentSong: MediaMetadataCompat? = null
-    private var isPlayerInitialized = false
-    private lateinit var musicPlayerEventListener: PlayerEventsListener
 
     override fun onCreate() {
         super.onCreate()
+
+        serviceScope.launch {
+            repo.loadAudioItems()
+        }
         // Build a PendingIntent that can be used to launch the UI.
         val activityIntent = packageManager?.getLaunchIntentForPackage(packageName)?.let {
             PendingIntent.getActivity(this, 0, it, 0)
@@ -67,22 +73,15 @@ class AudioPlayerMediaService() : MediaBrowserServiceCompat() {
         }
 
         sessionToken = mediaSession.sessionToken
-        musicNotificationManager = NotificationManager(this, sessionToken!!, this)
+        sessionToken?.let { musicNotificationManager = NotificationManager(this, it, this) }
 
         mediaSessionConnector = MediaSessionConnector(mediaSession)
-        mediaSessionConnector.setPlaybackPreparer(CustomPlaybackPreparer())
+        mediaSessionConnector.setPlaybackPreparer(PlayerPlaybackPreparer())
         mediaSessionConnector.setQueueNavigator(MusicQueueNavigator())
         mediaSessionConnector.setPlayer(exoPlayer)
 
-        musicPlayerEventListener = PlayerEventsListener(this)
-        exoPlayer.addListener(musicPlayerEventListener)
+        exoPlayer.addListener(PlayerEventsListener())
         musicNotificationManager.showNotification(exoPlayer)
-    }
-
-    private inner class MusicQueueNavigator : TimelineQueueNavigator(mediaSession) {
-        override fun getMediaDescription(player: Player, windowIndex: Int): MediaDescriptionCompat {
-            return repo.audioMetadata[windowIndex].description
-        }
     }
 
     override fun onDestroy() {
@@ -130,7 +129,14 @@ class AudioPlayerMediaService() : MediaBrowserServiceCompat() {
         exoPlayer.playWhenReady = playNow
     }
 
-    inner class CustomPlaybackPreparer : MediaSessionConnector.PlaybackPreparer {
+    private inner class MusicQueueNavigator : TimelineQueueNavigator(mediaSession) {
+        override fun getMediaDescription(player: Player, windowIndex: Int): MediaDescriptionCompat {
+            return repo.audioMetadata[windowIndex].description
+        }
+    }
+
+    private inner class PlayerPlaybackPreparer : MediaSessionConnector.PlaybackPreparer {
+
         override fun onCommand(
             player: Player,
             controlDispatcher: ControlDispatcher,
@@ -150,8 +156,7 @@ class AudioPlayerMediaService() : MediaBrowserServiceCompat() {
             mediaId: String,
             playWhenReady: Boolean,
             extras: Bundle?
-        ) =
-            Unit
+        ) = Unit
 
         override fun onPrepareFromSearch(query: String, playWhenReady: Boolean, extras: Bundle?) =
             Unit
@@ -160,16 +165,26 @@ class AudioPlayerMediaService() : MediaBrowserServiceCompat() {
             val itemToPlay = repo.audioMetadata.find { uri == it.description.mediaUri }
             if (itemToPlay != null) {
                 currentSong = itemToPlay
-                preparePlayer(
-                    repo.audioMetadata,
-                    itemToPlay,
-                    true
-                )
+                preparePlayer(repo.audioMetadata, itemToPlay, true)
             }
+        }
+    }
 
+    private inner class PlayerEventsListener : Player.Listener {
+        override fun onIsPlayingChanged(isPlaying: Boolean) {
+            super.onIsPlayingChanged(isPlaying)
+            if (!isPlaying) {
+                stopForeground(false)
+            }
+        }
+
+        override fun onPlayerError(error: PlaybackException) {
+            super.onPlayerError(error)
+            Toast.makeText(
+                applicationContext,
+                "Music App: an unknown error occurred",
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 }
-
-
-

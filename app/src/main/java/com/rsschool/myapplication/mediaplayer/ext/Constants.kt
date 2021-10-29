@@ -1,4 +1,4 @@
-package com.rsschool.myapplication.mediaplayer.service
+package com.rsschool.myapplication.mediaplayer.ext
 
 object Constants {
 

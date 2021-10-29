@@ -9,8 +9,8 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import com.rsschool.myapplication.mediaplayer.ext.Constants.NETWORK_ERROR
 import com.rsschool.myapplication.mediaplayer.service.AudioPlayerMediaService
-import com.rsschool.myapplication.mediaplayer.service.Constants.NETWORK_ERROR
 
 class MediaController(context: Context) {
 
@@ -82,7 +82,7 @@ class MediaController(context: Context) {
     }
 
     /**
-     * there’s a MediaControllerCompat.Callback you can pass to registerCallback().
+     * There’s a MediaControllerCompat.Callback you can pass to registerCallback().
      * You’ll get a callback whenever anything changes, allowing your UI to stay in sync with your Service.
      */
     private inner class MediaControllerCallback : MediaControllerCompat.Callback() {
@@ -97,7 +97,7 @@ class MediaController(context: Context) {
 
         override fun onSessionEvent(event: String?, extras: Bundle?) {
             super.onSessionEvent(event, extras)
-            when(event) {
+            when (event) {
                 NETWORK_ERROR -> _networkError.postValue(true)
             }
         }
