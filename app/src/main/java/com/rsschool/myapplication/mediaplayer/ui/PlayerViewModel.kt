@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class AudioItemViewModel @Inject constructor(
+class PlayerViewModel @Inject constructor(
     val mediaController: MediaController,
     val repository: AudioRepository
 ) : ViewModel() {

@@ -26,7 +26,7 @@ class PlayerFragment : Fragment() {
     private var _binding: FragmentPlayerBinding? = null
     private val binding get() = _binding!!
 
-    private val playerViewModel: AudioItemViewModel by viewModels()
+    private val playerViewModel: PlayerViewModel by viewModels()
     private var curPlayingSong: AudioItem? = null
 
     override fun onCreateView(
