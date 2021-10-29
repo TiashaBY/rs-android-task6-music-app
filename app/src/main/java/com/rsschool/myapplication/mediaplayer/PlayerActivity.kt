@@ -3,16 +3,12 @@ package com.rsschool.myapplication.mediaplayer
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentTransaction
-import androidx.navigation.NavController
 import com.rsschool.myapplication.mediaplayer.databinding.ActivityMainBinding
 import com.rsschool.myapplication.mediaplayer.ui.PlayerFragment
 import dagger.hilt.android.AndroidEntryPoint
 
-
 @AndroidEntryPoint
 class PlayerActivity : AppCompatActivity() {
-
-    private var navController: NavController? = null
 
     private lateinit var binding: ActivityMainBinding
 
@@ -23,9 +19,5 @@ class PlayerActivity : AppCompatActivity() {
 
         val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
         transaction.add(binding.fragmentContainer.id, PlayerFragment(), null).commit()
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        return navController?.navigateUp() == true || super.onSupportNavigateUp()
     }
 }
